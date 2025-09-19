@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VICTOR STORE - Sua Loja de Apps e Músicas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cores Primárias e Secundárias */
+            --primary-bg-white: #F8F9FA; /* Fundo principal mais suave */
+            --header-blue-transparent: rgba(0, 75, 150, 0.75); /* Azul para o cabeçalho, um pouco mais opaco */
+            --highlight-color: #6DE350; /* Verde de destaque vibrante */
+            --secondary-highlight-color: #007BFF; /* Azul para botões/links secundários */
+
+            /* Cores de Texto */
+            --text-color-dark: #212B36; /* Texto escuro para fundo claro */
+            --text-color-light: #F8F9FA; /* Texto claro para fundo escuro */
+            --text-color-muted: #6B7B8F; /* Texto mais suave para descrições */
+
+            /* Cores de Feedback */
+            --success-color: #28A745;
+            --error-color: #DC3545;
+            --info-color: #17A2B8;
+
+            /* Bordas e Sombras */
+            --border-color-light: #E0E4E8;
+            --border-color-dark: #3A4753;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-medium: 0 5px 15px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 10px 30px rgba(0,0,0,0.3);
+
+            /* Cores para o login/registro (fundo escuro) */
+            --login-bg-dark: #1A1A1A;
+            --login-input-bg: #2C2C2C; /* Input um pouco mais claro que o fundo */
+            --login-placeholder-color: rgba(255, 255, 255, 0.5);
+            --login-button-primary: var(--secondary-highlight-color); /* Login button azul */
+            --login-button-hover: #0056b3;
+            --login-text-color: #FFFFFF;
+
+            /* Tipografia */
+            --font-family-base: 'Poppins', sans-serif;
+            --font-size-base: 16px;
+            --font-size-large: 1.4em; /* h3 no popover */
+            --font-size-h2: 1.8em; /* Seções */
+            --font-size-h3: 1.2em; /* Cards */
+        }
+
+        /* Base */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            color: var(--text-color-dark);
+            background-color: var(--primary-bg-white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Contexto para elementos absolutos como FAB */
+            overflow-x: hidden; /* Evita scroll horizontal indesejado */
+        }
+
+        /* Global Reset/Defaults */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--secondary-highlight-color);
+            transition: color 0.2s ease-in-out;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        input, textarea, select {
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color-light);
+            background-color: #FFFFFF;
+            color: var(--text-color-dark);
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-color-muted);
+            opacity: 0.8;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--secondary-highlight-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--header-blue-transparent);
+            backdrop-filter: blur(8px); /* Blur mais pronunciado */
+            -webkit-backdrop-filter: blur(8px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-medium); /* Sombra mais destacada */
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky; /* Sticky header para rolar com a página */
+            top: 0;
+            z-index: 500; /* Z-index para o cabeçalho */
+            overflow: hidden; /* Importante para o efeito da search bar */
+        }
+
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 2; /* Garante que os botões fiquem acima do logo e search bar */
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: #000; /* Ícone preto, pode ser mudado para light se o fundo do header for muito escuro */
+            font-size: 30px;
+            cursor: pointer;
+            margin-right: 15px;
+            padding: 5px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .hamburger-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-color-light);
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+            padding-right: 10px;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            z-index: 1; /* Abaixo dos botões de navegação */
+            white-space: nowrap; /* Impede que o texto quebre linha */
+        }
+
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: -100%; }
+        }
+
+        .search-bar {
+            position: absolute; /* Posicionado absolutamente no header */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% - 180px); /* Ajustado para não colidir com botões */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, visibility 0.3s;
+            pointer-events: none;
+            display: flex;
+            z-index: 0;
+            transform: translate(-50%, -50%) scale(0.9); /* Inicia menor */
+        }
+
+        header.search-active .search-bar {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            z-index: 3;
+            transform: translate(-50%, -50%) scale(1); /* Cresce para o tamanho normal */
+        }
+        header.search-active .logo-text {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8); /* Efeito de encolhimento */
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 18px;
+            border-radius: 25px;
+            background-color: rgba(255, 255, 255, 0.25); /* Fundo mais opaco */
+            color: var(--text-color-light);
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .search-bar input:focus {
+            background-color: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: var(--text-color-light);
+            font-size: 26px; /* Ícones ligeiramente maiores */
+            cursor: pointer;
+            margin-left: 18px; /* Mais espaçamento */
+            padding: 6px;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Sombra mais pronunciada */
+        }
+
+        .icon-button:hover {
+            color: var(--highlight-color);
+            transform: translateY(-3px) scale(1.05); /* Efeito de elevação e leve aumento */
+            text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Menu Hambúrguer */
+        .hamburger-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px; /* Ligeiramente mais largo */
+            height: 100%;
+            background: linear-gradient(135deg, var(--login-bg-dark), #0D0D0D); /* Gradiente mais profundo */
+            box-shadow: 3px 0 20px rgba(0,0,0,0.5);
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hamburger-menu.open {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            padding: 25px 20px; /* Mais padding */
+            border-bottom: 1px solid var(--border-color-dark);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: relative;
+            min-height: 70px; /* Mais altura */
+        }
+
+        .menu-title {
+            font-size: 30px; /* Título maior */
+            font-weight: 700;
+            color: var(--text-color-light);
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% - 50px);
+            text-align: center;
+            overflow: hidden;
+            padding-right: 10px;
+        }
+
+        .menu-header .close-btn {
+            font-size: 32px; /* Botão maior */
+            color: var(--text-color-light);
+            padding: 0 12px;
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            z-index: 2;
+        }
+        .menu-header .close-btn:hover {
+            transform: rotate(90deg) scale(1.15);
+            color: var(--error-color);
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .menu-list li {
+            padding: 20px 30px; /* Mais padding */
+            border-bottom: 1px solid var(--border-color-dark);
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-list li::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.07); /* Luz sutil mais evidente */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 0;
+        }
+        .menu-list li:hover::before {
+            opacity: 1;
+        }
+        .menu-list li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px); /* Efeito mais pronunciado */
+            box-shadow: inset 6px 0 18px rgba(0,0,0,0.3);
+        }
+
+        .menu-list a {
+            color: var(--text-color-light);
+            font-weight: 500;
+            font-size: 1.05em; /* Texto ligeiramente maior */
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .menu-contact-icons {
+            display: flex;
+            justify-content: center;
+            padding: 25px 20px; /* Mais padding */
+            border-top: 1px solid var(--border-color-dark);
+        }
+        .menu-contact-icons a {
+            color: var(--text-color-light);
+            font-size: 34px; /* Ícones maiores */
+            margin: 0 18px;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+        .menu-contact-icons a:hover {
+            color: var(--highlight-color);
+            transform: translateY(-4px) scale(1.1);
+        }
+        .menu-contact-icons a.phone-icon::before {
+            content: '📞';
+        }
+
+        .menu-footer {
+            text-align: center;
+            padding: 20px 15px; /* Mais padding */
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.5);
+            border-top: 1px solid var(--border-color-dark);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px 20px; /* Mais padding */
+            flex-grow: 1;
+            background-color: var(--primary-bg-white);
+        }
+
+        .section-title {
+            font-size: var(--font-size-h2);
+            margin-bottom: 25px;
+            color: var(--text-color-dark);
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color-light);
+            padding-bottom: 10px;
+        }
+
+        .section-title a {
+            font-size: 0.7em; /* Relativo ao título da seção */
+            margin-left: auto; /* Empurra para a direita */
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: rgba(0, 123, 255, 0.1);
+            color: var(--secondary-highlight-color);
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .section-title a:hover {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #0056b3;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Min-width um pouco maior */
+            gap: 25px; /* Mais espaço entre os cards */
+            padding-bottom: 20px; /* Espaço inferior para o grid */
+        }
+
+        .app-card {
+            background-color: #FFFFFF;
+            border-radius: 15px; /* Bordas mais arredondadas */
+            overflow: hidden;
+            text-align: center;
+            padding: 20px; /* Mais padding */
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color-light);
+            transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px); /* Efeito de elevação mais notável */
+            box-shadow: var(--shadow-medium);
+        }
+
+        .app-card img {
+            width: 90px; /* Ícone um pouco maior */
+            height: 90px;
+            object-fit: cover;
+            border-radius: 20px; /* Mais arredondado */
+            margin-bottom: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15); /* Sombra mais suave */
+            flex-shrink: 0;
+        }
+
+        .app-card h3 {
+            font-size: var(--font-size-h3);
+            margin: 0 0 8px;
+            color: var(--text-color-dark);
+            font-weight: 600;
+        }
+
+        .app-card p {
+            font-size: 0.9em;
+            color: var(--text-color-muted);
+            line-height: 1.5;
+            flex-grow: 1; /* Permite que a descrição ocupe espaço */
+            margin-bottom: 15px;
+        }
+
+        .app-card .download-btn {
+            display: block;
+            margin-top: 10px;
+            background-color: var(--highlight-color);
+            color: var(--login-text-color); /* Texto branco no botão verde */
+            padding: 10px 15px;
+            border-radius: 10px; /* Mais arredondado */
+            font-size: 1em;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .app-card .download-btn:hover {
+            background-color: #5AC74A;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.25);
+        }
+
+        .empty-grid-message {
+            grid-column: 1 / -1; /* Ocupa todas as colunas */
+            text-align: center;
+            color: var(--text-color-muted);
+            padding: 40px 0;
+            font-style: italic;
+            font-size: 1.2em;
+            background-color: #F0F2F5;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px dashed var(--border-color-light);
+        }
+
+        /* Modals (geral) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1500; /* Alto, mas abaixo do registro */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Fundo mais escuro */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px); /* Blur para o fundo do modal */
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .close-modal {
+            color: var(--text-color-muted);
+            font-size: 32px; /* Botão de fechar maior */
+            font-weight: bold;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .close-modal:hover {
+            color: var(--error-color);
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .modal-content {
+            background-color: var(--primary-bg-white);
+            margin: auto;
+            padding: 35px; /* Mais padding */
+            border-radius: 12px; /* Mais arredondado */
+            box-shadow: var(--shadow-heavy);
+            width: 90%;
+            max-width: 550px; /* Max-width um pouco maior */
+            position: relative;
+            border: 1px solid var(--border-color-light);
+            animation: fadeInScale 0.3s ease-out forwards; /* Animação de entrada */
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-content h2, .modal-content h3 {
+            margin-top: 0;
+            color: var(--text-color-dark);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-color-dark);
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .modal-content input[type="password"],
+        .modal-content input[type="text"],
+        .modal-content input[type="email"], /* Adicionado type email */
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%; /* Ajustado para 100% para não ter que usar calc */
+            margin-bottom: 20px;
+            background-color: #F8F9FA; /* Fundo levemente cinza */
+            border: 1px solid var(--border-color-light);
+        }
+         .modal-content input[type="radio"] {
+            width: auto;
+            margin-right: 8px; /* Mais espaço */
+         }
+
+        .modal-content button {
+            background-color: var(--secondary-highlight-color); /* Azul para botões de ação */
+            color: var(--login-text-color);
+            padding: 14px 25px; /* Mais padding */
+            border-radius: 8px; /* Mais arredondado */
+            font-size: 1.1em;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 8px; /* Ajuste para espaçamento */
+            margin-bottom: 15px;
+            text-align: left; /* Alinhado à esquerda para campos de input */
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .error-message a {
+            color: var(--secondary-highlight-color);
+            text-decoration: underline;
+        }
+
+        /* Estilos do Novo Modal de Login (substituindo o popover) */
+        #loginModal {
+            z-index: 1501; /* Ligeiramente acima do modal padrão, abaixo do registro */
+        }
+
+        #loginModal .modal-content {
+            background-color: var(--login-bg-dark); /* Fundo escuro */
+            padding: 40px; /* Padding generoso */
+            border-radius: 15px; /* Bordas arredondadas */
+            max-width: 420px; /* Largura focada para formulário de login */
+            box-shadow: var(--shadow-heavy);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--login-text-color);
+        }
+
+        #loginModal .modal-content h2 {
+            color: var(--login-text-color);
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+            margin-bottom: 35px;
+        }
+
+        #loginModal .modal-content label {
+            color: var(--login-text-color);
+            font-size: 1em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        #loginModal .modal-content label .icon {
+            font-size: 1.4em;
+            margin-right: 10px;
+            color: var(--highlight-color); /* Ícones verdes */
+        }
+
+        #loginModal .modal-content input[type="email"], /* Alterado para email */
+        #loginModal .modal-content input[type="password"] {
+            background-color: var(--login-input-bg);
+            border: 1px solid var(--border-color-dark);
+            color: var(--login-text-color);
+            padding: 14px 12px;
+            margin-bottom: 25px; /* Mais espaço abaixo dos inputs */
+        }
+        #loginModal .modal-content input::placeholder {
+            color: var(--login-placeholder-color);
+        }
+        #loginModal .modal-content input:focus {
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 0 3px rgba(109, 227, 80, 0.3);
+        }
+
+        #loginModal .modal-content button {
+            background-color: var(--login-button-primary); /* Azul padrão para login */
+            color: var(--login-text-color);
+            padding: 15px 25px; /* Mais padding */
+            font-size: 1.1em;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            margin-top: 15px; /* Ajuste para espaçamento entre botões */
+        }
+        #loginModal .modal-content button:hover {
+            background-color: var(--login-button-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Estilo para botão Google */
+        #googleSignInBtn {
+            background-color: #DB4437 !important; /* Cor do Google */
+            margin-top: 15px !important;
+        }
+        #googleSignInBtn:hover {
+            background-color: #C1352A !important;
+        }
+
+        #loginModal .register-option {
+            margin-top: 30px; /* Mais espaço */
+            font-size: 0.95em;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        #loginModal .register-option a {
+            color: var(--highlight-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        #loginModal .register-option a:hover {
+            color: #8CFF6A;
+            text-decoration: underline;
+        }
+
+        /* Modal de Registro (simplificado para Email/Senha Firebase) */
+        #registerModal {
+            z-index: 2000; /* Mais alto que outros modais */
+        }
+
+        #registerModal .modal-content {
+            background-color: var(--login-bg-dark);
+            padding: 40px; /* Mais padding */
+            border-radius: 15px; /* Mais arredondado */
+            box-shadow: var(--shadow-heavy);
+            max-width: 480px; /* Largura um pouco menor para formulário focado */
+            color: var(--login-text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #registerModal .modal-content h2 {
+            color: var(--login-text-color);
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+            margin-bottom: 35px;
+        }
+        #registerModal .modal-content label {
+            color: var(--login-text-color);
+        }
+        #registerModal .modal-content input[type="email"], /* Alterado para email */
+        #registerModal .modal-content input[type="password"] {
+            background-color: var(--login-input-bg);
+            border: 1px solid var(--border-color-dark);
+            color: var(--login-text-color);
+            padding: 14px 12px; /* Mais padding */
+        }
+        #registerModal .modal-content input::placeholder {
+            color: var(--login-placeholder-color);
+        }
+        #registerModal .modal-content input:focus {
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 0 3px rgba(109, 227, 80, 0.3);
+        }
+
+        #registerModal .modal-content .info-text {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+        #registerModal .modal-content button {
+            background-color: var(--highlight-color); /* Botões de registro verdes */
+            color: var(--text-color-dark); /* Texto escuro no botão verde */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            font-weight: 600;
+        }
+        #registerModal .modal-content button:hover {
+            background-color: #5AC74A;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        #registerModal .modal-content a {
+            color: var(--secondary-highlight-color); /* Links azuis no modal escuro */
+            font-weight: 500;
+        }
+        #registerModal .modal-content a:hover {
+            color: #7AA2F7;
+        }
+        #registerModal .error-message {
+            color: var(--error-color);
+            text-align: center;
+        }
+
+
+        /* Floating Action Button (WhatsApp) */
+        .whatsapp-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--highlight-color);
+            color: var(--primary-bg-white);
+            border-radius: 50%;
+            width: 65px; /* Maior */
+            height: 65px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px; /* Ícone maior */
+            text-decoration: none;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.35); /* Sombra mais forte */
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            z-index: 900; /* Abaixo de modais e popovers, mas acima do conteúdo */
+        }
+
+        .whatsapp-fab:hover {
+            background-color: #5AC74A;
+            transform: translateY(-5px) scale(1.05); /* Efeito de elevação e leve aumento */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+        }
+
+        .whatsapp-fab::before {
+            content: '💬';
+        }
+
+        /* Responsividade Básica (Exemplo) */
+        @media (max-width: 768px) {
+            body {
+                font-size: 15px; /* Reduz tamanho base da fonte para telas menores */
+            }
+            .logo-text {
+                font-size: 22px;
+            }
+            .search-bar {
+                width: calc(100% - 150px);
+            }
+            .icon-button {
+                font-size: 22px;
+                margin-left: 10px;
+            }
+            .hamburger-btn {
+                font-size: 26px;
+                margin-right: 10px;
+            }
+            .hamburger-menu {
+                width: 250px; /* Menu um pouco mais estreito */
+            }
+            .menu-title {
+                font-size: 26px;
+            }
+            .app-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Cards menores em telas pequenas */
+                gap: 15px;
+            }
+            .app-card {
+                padding: 15px;
+            }
+            .app-card img {
+                width: 70px;
+                height: 70px;
+            }
+            #loginModal .modal-content, #registerModal .modal-content {
+                width: 95%;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 12px 15px;
+            }
+            .logo-text {
+                font-size: 20px;
+            }
+            .search-bar {
+                width: calc(100% - 120px);
+            }
+            .icon-button {
+                font-size: 20px;
+                margin-left: 8px;
+            }
+            .hamburger-btn {
+                font-size: 24px;
+                margin-right: 8px;
+            }
+            .section-title {
+                font-size: 1.5em;
+            }
+            .app-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .whatsapp-fab {
+                width: 55px;
+                height: 55px;
+                font-size: 30px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="mainHeader">
+        <div class="header-left">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Abrir Menu">☰</button>
+        </div>
+        <a href="#" class="logo-text" id="logoText">VICTOR STORE</a>
+        <div class="search-bar" id="searchBar">
+            <input type="text" placeholder="Pesquisar apps e músicas..." aria-label="Campo de pesquisa">
+        </div>
+        <div class="header-right">
+            <button class="icon-button" id="searchBtn" aria-label="Pesquisar">🔍</button>
+            <button class="icon-button" id="profileBtn" aria-label="Perfil do Usuário">👤</button>
+        </div>
+
+        </header>
+
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="menu-header">
+            <div class="menu-title">VICTOR STORE</div>
+            <button class="close-btn" id="closeMenu" aria-label="Fechar Menu">&times;</button>
+        </div>
+        <ul class="menu-list">
+            <li><a href="#">Comunicação</a></li>
+            <li><a href="#">Ferramentas</a></li>
+            <li><a href="#">Jogos</a></li>
+            <li><a href="#">Multimídia</a></li>
+            <li><a href="#">Produtividade</a></li>
+            <li><a href="#">Estilo de Vida</a></li>
+            <li><a href="#">Escolha do Editor</a></li>
+            <li><a href="#" id="supportRequestBtn">Pedir Suporte</a></li>
+            <li><a href="#" id="addContentBtn">+ Adicionar Apps/Músicas</a></li>
+        </ul>
+
+        <div class="menu-contact-icons">
+            <a href="https://wa.me/258847747163" target="_blank" class="phone-icon" title="Conversar no WhatsApp"></a>
+        </div>
+
+        <div class="menu-footer">
+            ©victor store 2025
+        </div>
+    </div>
+
+    <main class="main-content">
+        <section>
+            <h2 class="section-title">Últimas Atualizações <a href="#">Ver mais</a></h2>
+            <div class="app-grid" id="latestUpdatesGrid">
+                <div class="empty-grid-message" id="latestUpdatesEmptyMessage">Nenhuma atualização disponível no momento.</div>
+            </div>
+        </section>
+
+        <section style="margin-top: 40px;">
+            <h2 class="section-title">Novos Lançamentos <a href="#">Ver mais</a></h2>
+            <div class="app-grid" id="newReleasesGrid">
+                 <div class="empty-grid-message" id="newReleasesEmptyMessage">Nenhum lançamento novo disponível no momento.</div>
+            </div>
+        </section>
+    </main>
+
+    <div id="addContentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeAddContentModal" aria-label="Fechar Modal">&times;</span>
+            <h2>Adicionar Apps/Músicas</h2>
+            <label for="adminPassword">Senha de Administrador:</label>
+            <input type="password" id="adminPassword" placeholder="Digite sua senha" aria-label="Senha de administrador">
+            <button id="submitAdminPassword">Enviar</button>
+            <p id="passwordErrorMessage" class="error-message" style="display: none;"></p>
+
+            <div id="adminContentForm" style="display: none;">
+                <h3>Adicionar Novo Conteúdo</h3>
+                <form id="contentUploadForm">
+                    <label for="contentName">Nome:</label>
+                    <input type="text" id="contentName" required aria-label="Nome do conteúdo"><br>
+
+                    <label for="contentDescription">Descrição (Opcional):</label>
+                    <textarea id="contentDescription" rows="3" aria-label="Descrição do conteúdo"></textarea><br>
+
+                    <label for="contentCategory">Categoria:</label>
+                    <select id="contentCategory" required aria-label="Categoria do conteúdo">
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Comunicação">Comunicação</option>
+                        <option value="Ferramentas">Ferramentas</option>
+                        <option value="Jogos">Jogos</option>
+                        <option value="Multimídia">Multimídia</option>
+                        <option value="Produtividade">Produtividade</option>
+                        <option value="Estilo de Vida">Estilo de Vida</option>
+                        <option value="Escolha do Editor">Escolha do Editor</option>
+                    </select><br>
+
+                    <label>Tipo:</label>
+                    <input type="radio" id="typeApp" name="contentType" value="app" required aria-label="Tipo App">
+                    <label for="typeApp">App</label>
+                    <input type="radio" id="typeMusic" name="contentType" value="music" aria-label="Tipo Música">
+                    <label for="typeMusic">Música</label><br>
+
+                    <label for="contentImage">Imagem (URL):</label>
+                    <input type="url" id="contentImage" placeholder="URL da imagem ou ícone" required aria-label="URL da imagem do conteúdo"><br>
+
+                    <label for="downloadLink">Link de Download:</label>
+                    <input type="url" id="downloadLink" placeholder="URL do arquivo para download" required aria-label="Link de download do conteúdo"><br>
+
+                    <button type="submit">Adicionar Conteúdo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeLoginModal" aria-label="Fechar Modal de Login">&times;</span>
+            <div id="loginLoggedOutContent">
+                <h2>Acessar sua Conta</h2>
+                <div class="input-group">
+                    <label for="modalLoginEmail"><span class="icon icon-email"></span>E-mail:</label>
+                    <input type="email" id="modalLoginEmail" placeholder="seuemail@exemplo.com" aria-label="Seu e-mail para login">
+                </div>
+                <div class="input-group">
+                    <label for="modalLoginPassword"><span class="icon icon-key"></span>Senha:</label>
+                    <input type="password" id="modalLoginPassword" placeholder="Sua senha" aria-label="Sua senha">
+                </div>
+                <p id="loginErrorMessage" class="error-message" style="display: none;"></p>
+                <button id="modalLoginSubmitBtn">Entrar com E-mail e Senha</button>
+                <button id="googleSignInBtn">Entrar com Google</button> <p class="register-option">
+                    Não tem uma conta? <a href="#" id="modalCreateAccountLink">Criar Nova Conta</a>
+                </p>
+            </div>
+            <div id="loginLoggedInContent" style="display: none;">
+                <h2>Olá, <span id="loggedInUserName">Usuário</span>!</h2>
+                <ul style="list-style: none; padding: 0; margin-top: 20px;">
+                    <li style="padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><a href="#" style="color: var(--login-text-color); font-size: 1.1em; display: block; transition: color 0.2s;">Minha Conta</a></li>
+                    <li style="padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);"><a href="#" style="color: var(--login-text-color); font-size: 1.1em; display: block; transition: color 0.2s;">Meus Downloads</a></li>
+                    <li style="padding: 12px 0; border-bottom: none;"><a href="#" id="modalProfileLogoutBtn" style="color: var(--error-color); font-size: 1.1em; display: block; transition: color 0.2s;">Terminar Sessão</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeRegisterModal" aria-label="Fechar Modal de Registro">&times;</span>
+            <h2>Criar Nova Conta</h2>
+
+            <div id="regFormContent" class="step-content active"> <p class="info-text">Crie sua conta com e-mail e senha.</p>
+                <label for="regEmail"><span class="icon icon-email"></span>E-mail:</label>
+                <input type="email" id="regEmail" placeholder="seuemail@exemplo.com" required aria-label="Seu e-mail para registro">
+                <p id="regEmailError" class="error-message" style="display: none;"></p>
+
+                <label for="regPassword"><span class="icon icon-key"></span>Criar Senha:</label>
+                <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" required aria-label="Nova senha">
+                <label for="regConfirmPassword"><span class="icon icon-key"></span>Confirmar Senha:</label>
+                <input type="password" id="regConfirmPassword" placeholder="Repita a senha" required aria-label="Confirmar senha">
+                <p class="error-message" id="regPasswordMatchError" style="display: none;"></p>
+                
+                <button id="regSubmitBtn">Registrar</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/258847747163" target="_blank" class="whatsapp-fab" title="Conversar no WhatsApp"></a>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFSYB7msWpajN3kaOxA76-TM5UcUmmoTA",
+            authDomain: "victor-store-mz.firebaseapp.com",
+            projectId: "victor-store-mz",
+            storageBucket: "victor-store-mz.firebasestorage.app",
+            messagingSenderId: "892629714671",
+            appId: "1:892629714671:web:454ce4760e1ed793bb7d1a"
+        };
+
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Variáveis globais para controlar o estado de login (agora gerenciado pelo Firebase Auth)
+        let currentUser = null; // Armazenará o objeto de usuário do Firebase
+        const ADMIN_PASSWORD = '857629056'; // Senha de administrador (Atenção: Apenas para fins de demonstração!)
+
+        // Referências aos elementos do DOM
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const closeMenuBtn = document.getElementById('closeMenu');
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+
+        const searchBtn = document.getElementById('searchBtn');
+        const searchBar = document.getElementById('searchBar');
+        const searchInput = searchBar.querySelector('input');
+        const mainHeader = document.getElementById('mainHeader');
+        const logoText = document.getElementById('logoText');
+
+        const addContentBtn = document.getElementById('addContentBtn');
+        const addContentModal = document.getElementById('addContentModal');
+        const closeAddContentModal = document.getElementById('closeAddContentModal');
+        const submitAdminPasswordBtn = document.getElementById('submitAdminPassword');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const passwordErrorMessage = document.getElementById('passwordErrorMessage');
+        const adminContentForm = document.getElementById('adminContentForm');
+        const contentUploadForm = document.getElementById('contentUploadForm');
+
+        const profileBtn = document.getElementById('profileBtn');
+
+        // Elementos do Modal de Login
+        const loginModal = document.getElementById('loginModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const loginLoggedOutContent = document.getElementById('loginLoggedOutContent');
+        const loginLoggedInContent = document.getElementById('loginLoggedInContent');
+        const loggedInUserName = document.getElementById('loggedInUserName'); // Para exibir o nome do usuário
+        const modalLoginEmailInput = document.getElementById('modalLoginEmail'); // Alterado para Email
+        const modalLoginPasswordInput = document.getElementById('modalLoginPassword');
+        const modalLoginSubmitBtn = document.getElementById('modalLoginSubmitBtn');
+        const googleSignInBtn = document.getElementById('googleSignInBtn'); // Novo
+        const loginErrorMessage = document.getElementById('loginErrorMessage');
+        const modalProfileLogoutBtn = document.getElementById('modalProfileLogoutBtn');
+        const modalCreateAccountLink = document.getElementById('modalCreateAccountLink');
+
+
+        // Elementos do Modal de Registro (simplificado)
+        const registerModal = document.getElementById('registerModal');
+        const closeRegisterModal = document.getElementById('closeRegisterModal');
+        const regFormContent = document.getElementById('regFormContent'); // O único passo agora
+        const regEmailInput = document.getElementById('regEmail'); // Novo input de email
+        const regPasswordInput = document.getElementById('regPassword'); // Nova senha
+        const regConfirmPasswordInput = document.getElementById('regConfirmPassword'); // Confirmação de senha
+        const regEmailError = document.getElementById('regEmailError'); // Erro de email
+        const regPasswordMatchError = document.getElementById('regPasswordMatchError'); // Erro de senha
+        const regSubmitBtn = document.getElementById('regSubmitBtn'); // Botão de registro
+
+        // Grids de Conteúdo
+        const latestUpdatesGrid = document.getElementById('latestUpdatesGrid');
+        const newReleasesGrid = document.getElementById('newReleasesGrid');
+        const latestUpdatesEmptyMessage = document.getElementById('latestUpdatesEmptyMessage');
+        const newReleasesEmptyMessage = document.getElementById('newReleasesEmptyMessage');
+
+        // --- Funções de UI ---
+
+        // FUNÇÃO ATUALIZADA para o modal de login (agora depende do Firebase Auth)
+        function updateProfileUI(user) {
+            currentUser = user; // Atualiza a variável global com o usuário atual
+            if (currentUser) {
+                loginLoggedOutContent.style.display = 'none';
+                loginLoggedInContent.style.display = 'block';
+                loggedInUserName.textContent = currentUser.displayName || currentUser.email || 'Usuário';
+            } else {
+                loginLoggedOutContent.style.display = 'block';
+                loginLoggedInContent.style.display = 'none';
+                loggedInUserName.textContent = 'Usuário'; // Reseta para default
+            }
+        }
+
+        function toggleSearchBar() {
+            mainHeader.classList.toggle('search-active');
+            if (mainHeader.classList.contains('search-active')) {
+                searchInput.focus();
+            } else {
+                searchInput.value = '';
+                searchInput.blur();
+            }
+        }
+
+        /**
+         * Renderiza um card de aplicativo/música no grid.
+         * @param {object} content - Objeto com { name, image, description, type, downloadLink }
+         * @param {HTMLElement} targetGrid - O elemento do grid onde o card será adicionado.
+         */
+        function renderAppCard(content, targetGrid) {
+            const appCard = document.createElement('div');
+            appCard.classList.add('app-card');
+            appCard.innerHTML = `
+                <img src="${content.image}" alt="Ícone de ${content.name}">
+                <h3>${content.name}</h3>
+                <p>${content.description || 'Nenhuma descrição disponível.'}</p>
+                <button class="download-btn" data-download-link="${content.downloadLink}">${content.type === 'app' ? 'Baixar' : 'Ouvir'}</button>
+            `;
+
+            const downloadButton = appCard.querySelector('.download-btn');
+            downloadButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                // Verifica o usuário do Firebase Auth
+                if (auth.currentUser) { // Usa auth.currentUser diretamente
+                    window.open(downloadButton.dataset.downloadLink, '_blank');
+                } else {
+                    alert('Você precisa estar logado para baixar este arquivo.');
+                    loginModal.style.display = 'flex'; // Abre o modal de login
+                    // Opcional: Limpa os campos de login e foca no email
+                    modalLoginEmailInput.value = '';
+                    modalLoginPasswordInput.value = '';
+                    loginErrorMessage.style.display = 'none';
+                    modalLoginEmailInput.focus();
+                }
+            });
+            targetGrid.appendChild(appCard);
+        }
+
+        // --- FUNÇÃO PARA CARREGAR CONTEÚDO DO FIRESTORE ---
+        async function loadContentFromFirestore() {
+            try {
+                const latestUpdatesSnapshot = await db.collection('content')
+                                                     .orderBy('timestamp', 'desc')
+                                                     .limit(4)
+                                                     .get();
+
+                latestUpdatesGrid.innerHTML = '';
+                if (!latestUpdatesSnapshot.empty) {
+                    latestUpdatesSnapshot.forEach(doc => {
+                        renderAppCard(doc.data(), latestUpdatesGrid);
+                    });
+                    if (latestUpdatesGrid.contains(latestUpdatesEmptyMessage)) {
+                        latestUpdatesGrid.removeChild(latestUpdatesEmptyMessage);
+                    }
+                } else {
+                    if (!latestUpdatesGrid.contains(latestUpdatesEmptyMessage)) {
+                        latestUpdatesGrid.appendChild(latestUpdatesEmptyMessage);
+                    }
+                }
+
+                const newReleasesSnapshot = await db.collection('content')
+                                                   .orderBy('timestamp', 'desc')
+                                                   .limit(4)
+                                                   .get();
+
+                newReleasesGrid.innerHTML = '';
+                if (!newReleasesSnapshot.empty) {
+                    newReleasesSnapshot.forEach(doc => {
+                        renderAppCard(doc.data(), newReleasesGrid);
+                    });
+                    if (newReleasesGrid.contains(newReleasesEmptyMessage)) {
+                        newReleasesGrid.removeChild(newReleasesEmptyMessage);
+                    }
+                } else {
+                    if (!newReleasesGrid.contains(newReleasesEmptyMessage)) {
+                        newReleasesGrid.appendChild(newReleasesEmptyMessage);
+                    }
+                }
+
+            } catch (error) {
+                console.error("Erro ao carregar conteúdo do Firestore: ", error);
+                alert("Erro ao carregar conteúdo da loja. Por favor, tente novamente.");
+                latestUpdatesGrid.innerHTML = '';
+                latestUpdatesGrid.appendChild(latestUpdatesEmptyMessage);
+                newReleasesGrid.innerHTML = '';
+                newReleasesGrid.appendChild(newReleasesEmptyMessage);
+            }
+        }
+
+
+        // --- Listeners de Eventos ---
+
+        // Menu Hambúrguer
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', () => {
+                hamburgerMenu.classList.add('open');
+                loginModal.style.display = 'none';
+                if (mainHeader.classList.contains('search-active')) {
+                    toggleSearchBar();
+                }
+            });
+        }
+
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', () => {
+                hamburgerMenu.classList.remove('open');
+            });
+        }
+
+        // Search Bar Toggle
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => {
+                toggleSearchBar();
+                loginModal.style.display = 'none';
+                hamburgerMenu.classList.remove('open');
+            });
+        }
+
+        // Modal de Adicionar Conteúdo
+        if (addContentBtn) {
+            addContentBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                hamburgerMenu.classList.remove('open');
+                addContentModal.style.display = 'flex';
+                adminPasswordInput.value = '';
+                passwordErrorMessage.style.display = 'none';
+                adminContentForm.style.display = 'none';
+                adminPasswordInput.style.display = 'block';
+                submitAdminPasswordBtn.style.display = 'block';
+                adminPasswordInput.focus();
+            });
+        }
+
+        if (closeAddContentModal) {
+            closeAddContentModal.addEventListener('click', () => {
+                addContentModal.style.display = 'none';
+            });
+        }
+
+        // Senha de Administrador
+        if (submitAdminPasswordBtn) {
+            submitAdminPasswordBtn.addEventListener('click', () => {
+                const adminPass = adminPasswordInput.value;
+                if (adminPass === ADMIN_PASSWORD) {
+                    adminContentForm.style.display = 'block';
+                    passwordErrorMessage.style.display = 'none';
+                    adminPasswordInput.style.display = 'none';
+                    submitAdminPasswordBtn.style.display = 'none';
+                    document.getElementById('contentName').focus();
+                } else {
+                    passwordErrorMessage.textContent = 'Senha incorreta. Tente novamente.';
+                    passwordErrorMessage.style.display = 'block';
+                    adminPasswordInput.focus();
+                }
+            });
+        }
+
+        // Envio do formulário de conteúdo
+        if (contentUploadForm) {
+            contentUploadForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const content = {
+                    name: document.getElementById('contentName').value,
+                    description: document.getElementById('contentDescription').value,
+                    category: document.getElementById('contentCategory').value,
+                    type: document.querySelector('input[name="contentType"]:checked').value,
+                    image: document.getElementById('contentImage').value,
+                    downloadLink: document.getElementById('downloadLink').value,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                try {
+                    const docRef = await db.collection('content').add(content);
+                    console.log("Documento escrito com ID: ", docRef.id);
+
+                    alert('Conteúdo adicionado com sucesso!');
+                    contentUploadForm.reset();
+                    addContentModal.style.display = 'none';
+                    await loadContentFromFirestore();
+                } catch (e) {
+                    console.error("Erro ao adicionar documento: ", e);
+                    alert('Erro ao adicionar conteúdo. Verifique o console para mais detalhes.');
+                }
+            });
+        }
+
+        // Abertura do Modal de Login
+        if (profileBtn) {
+            profileBtn.addEventListener('click', () => {
+                hamburgerMenu.classList.remove('open');
+                if (mainHeader.classList.contains('search-active')) {
+                    toggleSearchBar();
+                }
+                loginModal.style.display = 'flex';
+                // Reseta mensagens de erro e preenche campos se já há dados registrados
+                loginErrorMessage.style.display = 'none';
+                modalLoginEmailInput.value = ''; // Sempre limpa email e senha para login
+                modalLoginPasswordInput.value = '';
+                modalLoginEmailInput.focus();
+            });
+        }
+
+        // Fechar Modal de Login
+        if (closeLoginModal) {
+            closeLoginModal.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+        }
+
+        // Login com E-mail e Senha (Firebase Auth)
+        if (modalLoginSubmitBtn) {
+            modalLoginSubmitBtn.addEventListener('click', async () => {
+                const email = modalLoginEmailInput.value.trim();
+                const password = modalLoginPasswordInput.value.trim();
+
+                loginErrorMessage.style.display = 'none'; // Limpa mensagens de erro anteriores
+
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    // Sucesso: onAuthStateChanged cuidará da UI
+                    loginModal.style.display = 'none';
+                    alert('Login realizado com sucesso!');
+                } catch (error) {
+                    console.error("Erro no login:", error);
+                    let errorMessage = 'Erro ao fazer login. Verifique seu e-mail e senha.';
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        errorMessage = 'E-mail ou senha inválidos.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'O formato do e-mail é inválido.';
+                    }
+                    loginErrorMessage.textContent = errorMessage;
+                    loginErrorMessage.style.display = 'block';
+                }
+            });
+        }
+
+        // Login com Google (Firebase Auth)
+        if (googleSignInBtn) {
+            googleSignInBtn.addEventListener('click', async () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                loginErrorMessage.style.display = 'none'; // Limpa mensagens de erro anteriores
+
+                try {
+                    await auth.signInWithPopup(provider);
+                    // Sucesso: onAuthStateChanged cuidará da UI
+                    loginModal.style.display = 'none';
+                    alert('Login com Google realizado com sucesso!');
+                } catch (error) {
+                    console.error("Erro no login com Google:", error);
+                    let errorMessage = 'Erro ao fazer login com Google.';
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        errorMessage = 'Login com Google cancelado.';
+                    } else if (error.code === 'auth/cancelled-popup-request') {
+                         errorMessage = 'Requisição de login com Google cancelada.';
+                    } else if (error.code === 'auth/account-exists-with-different-credential') {
+                        errorMessage = 'Já existe uma conta com este e-mail usando outro método de login.';
+                    }
+                    loginErrorMessage.textContent = errorMessage;
+                    loginErrorMessage.style.display = 'block';
+                }
+            });
+        }
+
+        // Logout (Firebase Auth)
+        if (modalProfileLogoutBtn) {
+            modalProfileLogoutBtn.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    // Sucesso: onAuthStateChanged cuidará da UI
+                    alert('Sessão encerrada.');
+                    loginModal.style.display = 'none'; // Opcional: fecha o modal após logout
+                } catch (error) {
+                    console.error("Erro ao fazer logout:", error);
+                    alert('Erro ao encerrar a sessão. Tente novamente.');
+                }
+            });
+        }
+
+        // Link "Criar Nova Conta" no Modal de Login
+        if (modalCreateAccountLink) {
+            modalCreateAccountLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                loginModal.style.display = 'none';
+                registerModal.style.display = 'flex';
+                // Limpa campos e mensagens de erro do registro
+                regEmailInput.value = '';
+                regPasswordInput.value = '';
+                regConfirmPasswordInput.value = '';
+                regEmailError.style.display = 'none';
+                regPasswordMatchError.style.display = 'none';
+                regEmailInput.focus();
+            });
+        }
+
+        // Fechar Modal de Registro
+        if (closeRegisterModal) {
+            closeRegisterModal.addEventListener('click', () => {
+                registerModal.style.display = 'none';
+            });
+        }
+
+        // Registro de Nova Conta (Firebase Auth)
+        if (regSubmitBtn) {
+            regSubmitBtn.addEventListener('click', async () => {
+                const email = regEmailInput.value.trim();
+                const password = regPasswordInput.value.trim();
+                const confirmPassword = regConfirmPasswordInput.value.trim();
+
+                regEmailError.style.display = 'none';
+                regPasswordMatchError.style.display = 'none';
+
+                if (!email) {
+                    regEmailError.textContent = 'Por favor, insira um e-mail.';
+                    regEmailError.style.display = 'block';
+                    regEmailInput.focus();
+                    return;
+                }
+                if (password.length < 6) {
+                    regPasswordMatchError.textContent = 'A senha deve ter no mínimo 6 caracteres.';
+                    regPasswordMatchError.style.display = 'block';
+                    regPasswordInput.focus();
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    regPasswordMatchError.textContent = 'As senhas não coincidem.';
+                    regPasswordMatchError.style.display = 'block';
+                    regConfirmPasswordInput.focus();
+                    return;
+                }
+
+                try {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    // Sucesso: onAuthStateChanged cuidará da UI
+                    registerModal.style.display = 'none';
+                    loginModal.style.display = 'none'; // Fecha ambos os modais
+                    alert('Conta criada e login realizado com sucesso!');
+                } catch (error) {
+                    console.error("Erro no registro:", error);
+                    let errorMessage = 'Erro ao criar conta.';
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMessage = 'Este e-mail já está em uso.';
+                        regEmailInput.focus();
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'O formato do e-mail é inválido.';
+                        regEmailInput.focus();
+                    } else if (error.code === 'auth/weak-password') {
+                        errorMessage = 'A senha é muito fraca. Escolha uma mais forte.';
+                        regPasswordInput.focus();
+                    }
+                    regPasswordMatchError.textContent = errorMessage; // Reutiliza este campo para todos os erros
+                    regPasswordMatchError.style.display = 'block';
+                }
+            });
+        }
+
+        // Fechar modais/menu/search ao clicar fora
+        window.addEventListener('click', (event) => {
+            if (event.target === addContentModal) {
+                addContentModal.style.display = 'none';
+            }
+            if (event.target === registerModal) {
+                registerModal.style.display = 'none';
+            }
+            if (event.target === loginModal) {
+                loginModal.style.display = 'none';
+            }
+            if (hamburgerMenu && hamburgerBtn && !hamburgerMenu.contains(event.target) && !hamburgerBtn.contains(event.target) && hamburgerMenu.classList.contains('open')) {
+                hamburgerMenu.classList.remove('open');
+            }
+            if (mainHeader.classList.contains('search-active') && !searchBar.contains(event.target) && !searchBtn.contains(event.target) && event.target !== searchInput) {
+                 toggleSearchBar();
+            }
+        });
+
+        // --- Firebase Auth State Listener (CRUCIAL) ---
+        auth.onAuthStateChanged(user => {
+            updateProfileUI(user); // Atualiza a UI sempre que o estado de autenticação muda
+            // Opcional: Se quiser recarregar o conteúdo para usuários logados/deslogados
+            // loadContentFromFirestore();
+            console.log('Firebase Auth State Changed. Current User:', user);
+        });
+
+        // Inicializa a UI e os grids na carga da página
+        document.addEventListener('DOMContentLoaded', () => {
+            // updateProfileUI() já é chamado por onAuthStateChanged na inicialização.
+            loadContentFromFirestore(); // Carrega o conteúdo, as regras do Firestore vão proteger se o user não estiver logado.
+        });
+
+    </script>
+</body>
+</html>
