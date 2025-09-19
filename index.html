@@ -647,7 +647,9 @@
         }
 
         #loginModal .modal-content input[type="email"], /* Alterado para email */
-        #loginModal .modal-content input[type="password"] {
+        #loginModal .modal-content input[type="password"],
+        #loginModal .modal-content input[type="tel"],
+        #loginModal .modal-content input[type="text"] {
             background-color: var(--login-input-bg);
             border: 1px solid var(--border-color-dark);
             color: var(--login-text-color);
@@ -702,6 +704,21 @@
             color: #8CFF6A;
             text-decoration: underline;
         }
+        #loginModal .login-options-toggle {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        #loginModal .login-options-toggle a {
+            color: var(--secondary-highlight-color);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        #loginModal .login-options-toggle a:hover {
+            color: #7AA2F7;
+        }
+
 
         /* Modal de Registro (simplificado para Email/Senha Firebase) */
         #registerModal {
@@ -985,18 +1002,45 @@
             <span class="close-modal" id="closeLoginModal" aria-label="Fechar Modal de Login">&times;</span>
             <div id="loginLoggedOutContent">
                 <h2>Acessar sua Conta</h2>
-                <div class="input-group">
-                    <label for="modalLoginEmail"><span class="icon icon-email"></span>E-mail:</label>
-                    <input type="email" id="modalLoginEmail" placeholder="seuemail@exemplo.com" aria-label="Seu e-mail para login">
+                <div id="emailLoginForm">
+                    <div class="input-group">
+                        <label for="modalLoginEmail"><span class="icon icon-email"></span>E-mail:</label>
+                        <input type="email" id="modalLoginEmail" placeholder="seuemail@exemplo.com" aria-label="Seu e-mail para login">
+                    </div>
+                    <div class="input-group">
+                        <label for="modalLoginPassword"><span class="icon icon-key"></span>Senha:</label>
+                        <input type="password" id="modalLoginPassword" placeholder="Sua senha" aria-label="Sua senha">
+                    </div>
+                    <p id="loginErrorMessage" class="error-message" style="display: none;"></p>
+                    <button id="modalLoginSubmitBtn">Entrar com E-mail e Senha</button>
+                    <button id="googleSignInBtn">Entrar com Google</button>
                 </div>
-                <div class="input-group">
-                    <label for="modalLoginPassword"><span class="icon icon-key"></span>Senha:</label>
-                    <input type="password" id="modalLoginPassword" placeholder="Sua senha" aria-label="Sua senha">
+            
+                <div id="phoneLoginForm" style="display: none;">
+                    <div class="input-group">
+                        <label for="phoneNumberInput">Número do Telefone:</label>
+                        <input type="tel" id="phoneNumberInput" placeholder="+25884xxxxxxx" aria-label="Número do telefone para login">
+                    </div>
+                    <p id="phoneLoginErrorMessage" class="error-message" style="display: none;"></p>
+                    <div id="recaptcha-container"></div>
+                    <button id="phoneLoginBtn">Enviar Código de Verificação</button>
                 </div>
-                <p id="loginErrorMessage" class="error-message" style="display: none;"></p>
-                <button id="modalLoginSubmitBtn">Entrar com E-mail e Senha</button>
-                <button id="googleSignInBtn">Entrar com Google</button> <p class="register-option">
+            
+                <div id="verificationCodeForm" style="display: none;">
+                    <p>Um código de verificação foi enviado para o seu telefone.</p>
+                    <div class="input-group">
+                        <label for="verificationCodeInput">Código de Verificação:</label>
+                        <input type="text" id="verificationCodeInput" placeholder="Digite o código de 6 dígitos" aria-label="Código de verificação do telefone">
+                    </div>
+                    <p id="codeVerificationErrorMessage" class="error-message" style="display: none;"></p>
+                    <button id="verifyCodeBtn">Verificar e Entrar</button>
+                </div>
+            
+                <p class="register-option">
                     Não tem uma conta? <a href="#" id="modalCreateAccountLink">Criar Nova Conta</a>
+                </p>
+                <p class="login-options-toggle">
+                    <a href="#" id="toggleLoginOptions">Usar Telefone ou E-mail</a>
                 </p>
             </div>
             <div id="loginLoggedInContent" style="display: none;">
@@ -1039,12 +1083,12 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDFSYB7msWpajN3kaOxA76-TM5UcUmmoTA",
-            authDomain: "victor-store-mz.firebaseapp.com",
-            projectId: "victor-store-mz",
-            storageBucket: "victor-store-mz.firebasestorage.app",
-            messagingSenderId: "892629714671",
-            appId: "1:892629714671:web:454ce4760e1ed793bb7d1a"
+          apiKey: "AIzaSyDFSYB7msWpajN3kaOxA76-TM5UcUmmoTA",
+          authDomain: "victor-store-mz.firebaseapp.com",
+          projectId: "victor-store-mz",
+          storageBucket: "victor-store-mz.firebasestorage.app",
+          messagingSenderId: "892629714671",
+          appId: "1:892629714671:web:454ce4760e1ed793bb7d1a"
         };
 
         // Inicializa Firebase
@@ -1092,6 +1136,19 @@
         const modalProfileLogoutBtn = document.getElementById('modalProfileLogoutBtn');
         const modalCreateAccountLink = document.getElementById('modalCreateAccountLink');
 
+        // Novas referências para Login com Telefone
+        const phoneLoginForm = document.getElementById('phoneLoginForm');
+        const phoneNumberInput = document.getElementById('phoneNumberInput');
+        const phoneLoginBtn = document.getElementById('phoneLoginBtn');
+        const phoneLoginErrorMessage = document.getElementById('phoneLoginErrorMessage');
+        const recaptchaContainer = document.getElementById('recaptcha-container');
+        
+        // Referências para verificação do código
+        const verificationCodeForm = document.getElementById('verificationCodeForm');
+        const verificationCodeInput = document.getElementById('verificationCodeInput');
+        const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+        const codeVerificationErrorMessage = document.getElementById('codeVerificationErrorMessage');
+        const toggleLoginOptionsLink = document.getElementById('toggleLoginOptions');
 
         // Elementos do Modal de Registro (simplificado)
         const registerModal = document.getElementById('registerModal');
@@ -1118,7 +1175,7 @@
             if (currentUser) {
                 loginLoggedOutContent.style.display = 'none';
                 loginLoggedInContent.style.display = 'block';
-                loggedInUserName.textContent = currentUser.displayName || currentUser.email || 'Usuário';
+                loggedInUserName.textContent = currentUser.displayName || currentUser.email || currentUser.phoneNumber || 'Usuário';
             } else {
                 loginLoggedOutContent.style.display = 'block';
                 loginLoggedInContent.style.display = 'none';
@@ -1329,6 +1386,7 @@
                 loginModal.style.display = 'flex';
                 // Reseta mensagens de erro e preenche campos se já há dados registrados
                 loginErrorMessage.style.display = 'none';
+                phoneLoginErrorMessage.style.display = 'none';
                 modalLoginEmailInput.value = ''; // Sempre limpa email e senha para login
                 modalLoginPasswordInput.value = '';
                 modalLoginEmailInput.focus();
@@ -1341,7 +1399,7 @@
                 loginModal.style.display = 'none';
             });
         }
-
+        
         // Login com E-mail e Senha (Firebase Auth)
         if (modalLoginSubmitBtn) {
             modalLoginSubmitBtn.addEventListener('click', async () => {
@@ -1368,7 +1426,7 @@
                 }
             });
         }
-
+        
         // Login com Google (Firebase Auth)
         if (googleSignInBtn) {
             googleSignInBtn.addEventListener('click', async () => {
@@ -1395,7 +1453,102 @@
                 }
             });
         }
-
+        
+        // Login com Telefone
+        let recaptchaVerifier;
+        let confirmationResult;
+        
+        if (toggleLoginOptionsLink) {
+            toggleLoginOptionsLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                const emailForm = document.getElementById('emailLoginForm');
+                const phoneForm = document.getElementById('phoneLoginForm');
+        
+                if (emailForm.style.display !== 'none') {
+                    emailForm.style.display = 'none';
+                    phoneForm.style.display = 'block';
+                    toggleLoginOptionsLink.textContent = 'Usar E-mail';
+                    // Renderiza o Recaptcha na primeira vez
+                    if (!recaptchaVerifier) {
+                        recaptchaVerifier = new firebase.auth.RecaptchaVerifier(recaptchaContainer, {
+                            'size': 'invisible',
+                            'callback': (response) => {
+                                // Recaptcha resolvido
+                            }
+                        });
+                    }
+                } else {
+                    emailForm.style.display = 'block';
+                    phoneForm.style.display = 'none';
+                    toggleLoginOptionsLink.textContent = 'Usar Telefone';
+                }
+                // Limpa mensagens de erro
+                loginErrorMessage.style.display = 'none';
+                phoneLoginErrorMessage.style.display = 'none';
+                codeVerificationErrorMessage.style.display = 'none';
+            });
+        }
+        
+        if (phoneLoginBtn) {
+            phoneLoginBtn.addEventListener('click', async () => {
+                const phoneNumber = phoneNumberInput.value;
+                if (!phoneNumber) {
+                    phoneLoginErrorMessage.textContent = 'Por favor, insira um número de telefone.';
+                    phoneLoginErrorMessage.style.display = 'block';
+                    return;
+                }
+        
+                phoneLoginErrorMessage.style.display = 'none';
+        
+                try {
+                    confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier);
+                    alert('Código de verificação enviado!');
+                    phoneLoginForm.style.display = 'none';
+                    verificationCodeForm.style.display = 'block';
+                    verificationCodeInput.focus();
+                } catch (error) {
+                    console.error("Erro no login com telefone:", error);
+                    let errorMessage = 'Erro ao enviar o código. Verifique o número e tente novamente.';
+                    if (error.code === 'auth/invalid-phone-number') {
+                        errorMessage = 'O número de telefone inserido é inválido.';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
+                    }
+                    phoneLoginErrorMessage.textContent = errorMessage;
+                    phoneLoginErrorMessage.style.display = 'block';
+                }
+            });
+        }
+        
+        if (verifyCodeBtn) {
+            verifyCodeBtn.addEventListener('click', async () => {
+                const code = verificationCodeInput.value;
+                if (!code) {
+                    codeVerificationErrorMessage.textContent = 'Por favor, insira o código de verificação.';
+                    codeVerificationErrorMessage.style.display = 'block';
+                    return;
+                }
+        
+                codeVerificationErrorMessage.style.display = 'none';
+        
+                try {
+                    await confirmationResult.confirm(code);
+                    loginModal.style.display = 'none';
+                    alert('Login com telefone realizado com sucesso!');
+                } catch (error) {
+                    console.error("Erro ao verificar código:", error);
+                    let errorMessage = 'Código de verificação inválido.';
+                    if (error.code === 'auth/invalid-verification-code') {
+                        errorMessage = 'O código de verificação está incorreto.';
+                    } else if (error.code === 'auth/code-expired') {
+                        errorMessage = 'O código expirou. Tente enviar novamente.';
+                    }
+                    codeVerificationErrorMessage.textContent = errorMessage;
+                    codeVerificationErrorMessage.style.display = 'block';
+                }
+            });
+        }
+        
         // Logout (Firebase Auth)
         if (modalProfileLogoutBtn) {
             modalProfileLogoutBtn.addEventListener('click', async () => {
@@ -1410,7 +1563,7 @@
                 }
             });
         }
-
+        
         // Link "Criar Nova Conta" no Modal de Login
         if (modalCreateAccountLink) {
             modalCreateAccountLink.addEventListener('click', (event) => {
@@ -1426,24 +1579,24 @@
                 regEmailInput.focus();
             });
         }
-
+        
         // Fechar Modal de Registro
         if (closeRegisterModal) {
             closeRegisterModal.addEventListener('click', () => {
                 registerModal.style.display = 'none';
             });
         }
-
+        
         // Registro de Nova Conta (Firebase Auth)
         if (regSubmitBtn) {
             regSubmitBtn.addEventListener('click', async () => {
                 const email = regEmailInput.value.trim();
                 const password = regPasswordInput.value.trim();
                 const confirmPassword = regConfirmPasswordInput.value.trim();
-
+        
                 regEmailError.style.display = 'none';
                 regPasswordMatchError.style.display = 'none';
-
+        
                 if (!email) {
                     regEmailError.textContent = 'Por favor, insira um e-mail.';
                     regEmailError.style.display = 'block';
@@ -1462,7 +1615,7 @@
                     regConfirmPasswordInput.focus();
                     return;
                 }
-
+        
                 try {
                     await auth.createUserWithEmailAndPassword(email, password);
                     // Sucesso: onAuthStateChanged cuidará da UI
@@ -1487,7 +1640,7 @@
                 }
             });
         }
-
+        
         // Fechar modais/menu/search ao clicar fora
         window.addEventListener('click', (event) => {
             if (event.target === addContentModal) {
